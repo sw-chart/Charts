@@ -21,7 +21,7 @@ open class BarLineScatterCandleBubbleRenderer: NSObject, DataRenderer
 
     public let animator: Animator
 
-    internal var _xBounds = XBounds() // Reusable XBounds object
+    open var _xBounds = XBounds() // Reusable XBounds object
     
     public init(animator: Animator, viewPortHandler: ViewPortHandler)
     {
@@ -40,7 +40,7 @@ open class BarLineScatterCandleBubbleRenderer: NSObject, DataRenderer
     open func drawHighlighted(context: CGContext, indices: [Highlight]) { }
 
     /// Checks if the provided entry object is in bounds for drawing considering the current animation phase.
-    internal func isInBoundsX(entry e: ChartDataEntry, dataSet: BarLineScatterCandleBubbleChartDataSetProtocol) -> Bool
+    public func isInBoundsX(entry e: ChartDataEntry, dataSet: BarLineScatterCandleBubbleChartDataSetProtocol) -> Bool
     {
         let entryIndex = dataSet.entryIndex(entry: e)
         return Double(entryIndex) < Double(dataSet.entryCount) * animator.phaseX
