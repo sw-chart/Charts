@@ -14,7 +14,7 @@ import Foundation
 #if os(iOS) || os(tvOS)
 import UIKit
 
-internal func accessibilityPostLayoutChangedNotification(withElement element: Any? = nil)
+public func accessibilityPostLayoutChangedNotification(withElement element: Any? = nil)
 {
     UIAccessibility.post(notification: .layoutChanged, argument: element)
 }

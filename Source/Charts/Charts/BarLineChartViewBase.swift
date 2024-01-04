@@ -93,6 +93,9 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     internal var _pinchGestureRecognizer: NSUIPinchGestureRecognizer!
     #endif
     internal var _panGestureRecognizer: NSUIPanGestureRecognizer!
+    open var myPanGestureRecognizer: NSUIPanGestureRecognizer {
+        return _panGestureRecognizer
+    }
     
     /// flag that indicates if a custom viewport offset has been set
     private var _customViewPortEnabled = false
@@ -522,6 +525,15 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     private var _closestDataSetToTouch: ChartDataSetProtocol!
     private var _panGestureReachedEdge: Bool = false
     private weak var _outerScrollView: NSUIScrollView?
+    open var myOuterScrollView: NSUIScrollView? {
+        get {
+            return _outerScrollView
+        }
+        set {
+            _outerScrollView = newValue
+        }
+       
+    }
     
     private var _lastPanPoint = CGPoint() /// This is to prevent using setTranslation which resets velocity
     
@@ -530,6 +542,11 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     private var _decelerationVelocity = CGPoint()
     
     @objc open func isDraggingHighlighterInZommedIn(point: CGPoint) -> Bool
+    {
+        return false
+    }
+    
+    @objc open func isTapPointInMarkerRect(point: CGPoint) -> Bool
     {
         return false
     }
@@ -557,6 +574,8 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         
         if recognizer.state == NSUIGestureRecognizerState.ended
         {
+            if isTapPointInMarkerRect(point: recognizer.location(in: self)) { return }
+            
             if !isHighLightPerTapEnabled { return }
             
             var h = getHighlightsByTouchPoint(recognizer.location(in: self))
