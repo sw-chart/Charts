@@ -529,6 +529,25 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     private var _decelerationDisplayLink: NSUIDisplayLink!
     private var _decelerationVelocity = CGPoint()
     
+    @objc open func isDraggingHighlighterInZommedIn(point: CGPoint) -> Bool
+    {
+        return false
+    }
+    
+    @objc open func getCurrentTapPosition(point: CGPoint, highlighted: Highlight){}
+    
+    private func calculateNearestHighlights(highlights: inout [Highlight], highlight: Highlight) {
+        if highlights.count > 1 {
+            let h = highlights
+            highlights.removeAll()
+            for value in h {
+                if value.x == highlight.x {
+                    highlights.append(value)
+                }
+            }
+        }
+    }
+    
     @objc private func tapGestureRecognized(_ recognizer: NSUITapGestureRecognizer)
     {
         if data === nil
@@ -540,17 +559,26 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         {
             if !isHighLightPerTapEnabled { return }
             
-            let h = getHighlightByTouchPoint(recognizer.location(in: self))
+            var h = getHighlightsByTouchPoint(recognizer.location(in: self))
+            guard let high = getHighlightByTouchPoint(recognizer.location(in: self)) else { return }
             
-            if h === nil || h == self.lastHighlighted
+            if h.last === nil || h.last == self.lastHighlighted
             {
                 lastHighlighted = nil
                 highlightValue(nil, callDelegate: true)
             }
             else
             {
-                lastHighlighted = h
-                highlightValue(h, callDelegate: true)
+                ///Added 27.12.20 for fix blinking highlighter on Today's performance
+                calculateNearestHighlights(highlights: &h, highlight: high)
+                
+                lastHighlighted = h.last
+                highlightValue(h.first, callDelegate: true)
+                
+                highlightValues(h)
+                if let high = h.last{
+                    getCurrentTapPosition(point: recognizer.location(in: self), highlighted: high)
+                }
             }
         }
     }
@@ -705,6 +733,11 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                     translation.y = 0.0
                 }
                 
+                if isDraggingHighlighterInZommedIn(point: recognizer.location(in: self))
+                {
+                    _isDragging = false
+                }
+                
                 let didUserDrag = translation.x != 0.0 || translation.y != 0.0
                 
                 // Check to see if user dragged at all and if so, can the chart be dragged by the given amount
@@ -761,14 +794,23 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             }
             else if isHighlightPerDragEnabled
             {
-                let h = getHighlightByTouchPoint(recognizer.location(in: self))
+                var h = getHighlightsByTouchPoint(recognizer.location(in: self))
+                guard let high = getHighlightByTouchPoint(recognizer.location(in: self)) else { return }
                 
                 let lastHighlighted = self.lastHighlighted
                 
-                if h != lastHighlighted
+                if h.last != lastHighlighted
                 {
-                    self.lastHighlighted = h
-                    self.highlightValue(h, callDelegate: true)
+                    ///Added 27.12.20 for fix blinking highlighter on Today's performance
+                    calculateNearestHighlights(highlights: &h, highlight: high)
+                    
+                    self.lastHighlighted = h.last
+                    self.highlightValue(h.first, callDelegate: true)
+                    
+                    self.highlightValues(h)
+                    if let high = h.last{
+                        getCurrentTapPosition(point: recognizer.location(in: self), highlighted: high)
+                    }
                 }
             }
         }

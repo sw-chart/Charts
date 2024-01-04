@@ -481,6 +481,17 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         
         return self.highlighter?.getHighlight(x: pt.x, y: pt.y)
     }
+    
+    @objc open func getHighlightsByTouchPoint(_ pt: CGPoint) -> [Highlight]
+    {
+        if data === nil
+        {
+            Swift.print("Can't select by touch. No data set.")
+            return [Highlight]()
+        }
+        
+        return self.highlighter?.getHighlights(x: pt.x, y: pt.y) ?? [Highlight]()
+    }
 
     /// The last value that was highlighted via touch.
     @objc open var lastHighlighted: Highlight?
