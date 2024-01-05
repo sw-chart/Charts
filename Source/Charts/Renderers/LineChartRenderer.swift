@@ -529,8 +529,8 @@ open class LineChartRenderer: LineRadarRenderer
             
             for i in lineData.indices
             {
-                guard let
-                        dataSet = lineData[i] as? LineChartDataSetProtocol,
+                guard i < lineData.count,
+                      let dataSet = lineData[i] as? LineChartDataSetProtocol,
                       shouldDrawValues(forDataSet: dataSet)
                 else { continue }
                 
@@ -632,8 +632,9 @@ open class LineChartRenderer: LineRadarRenderer
 
         for i in lineData.indices
         {
-            guard let dataSet = lineData[i] as? LineChartDataSetProtocol else { continue }
-
+            guard i < lineData.count,
+                  let dataSet = lineData[i] as? LineChartDataSetProtocol else { continue }
+            
             // Skip Circles and Accessibility if not enabled,
             // reduces CPU significantly if not needed
             if !dataSet.isVisible || !dataSet.isDrawCirclesEnabled || dataSet.entryCount == 0
@@ -760,7 +761,8 @@ open class LineChartRenderer: LineRadarRenderer
         
         for high in indices
         {
-            guard let set = lineData[high.dataSetIndex] as? LineChartDataSetProtocol,
+            guard high.dataSetIndex < lineData.count,
+                  let set = lineData[high.dataSetIndex] as? LineChartDataSetProtocol,
                   set.isHighlightEnabled
             else { continue }
             
